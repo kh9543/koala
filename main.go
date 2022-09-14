@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -10,11 +11,16 @@ import (
 )
 
 var (
+	port     string
 	botToken string
 )
 
 func init() {
 	botToken = os.Getenv("token")
+	port = os.Getenv("PORT")
+	if port == "" {
+		port = "80"
+	}
 }
 
 func main() {
@@ -31,5 +37,5 @@ func main() {
 	apiv1 := r.Group("/api/v1")
 
 	heartbeat.NewHandler(apiv1)
-	r.Run(":80")
+	r.Run(fmt.Sprintf(":%s", port))
 }
