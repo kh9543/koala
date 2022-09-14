@@ -2,7 +2,7 @@ package bot
 
 type Bot interface {
 	// Add handlers to bot
-	AddHandler(...Handler)
+	AddHandler(usePrefix bool, hs ...Handler)
 
 	// Start handling message with handlers
 	Start() error

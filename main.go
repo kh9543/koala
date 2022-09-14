@@ -1,13 +1,25 @@
 package main
 
 import (
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/kh9543/koala/apps/bot"
 	"github.com/kh9543/koala/apps/http/heartbeat"
+	"github.com/kh9543/koala/domain/kv/memory"
 )
 
+var (
+	botToken string
+)
+
+func init() {
+	botToken = os.Getenv("token")
+}
+
 func main() {
-	if err := bot.NewDiscordBot("!", "token").Start(); err != nil {
+	kv := memory.NewMemory()
+	if err := bot.NewDiscordBot("!", botToken, kv); err != nil {
 		panic(err)
 	}
 
