@@ -69,9 +69,12 @@ func (b *Bot) koalaBrainHandler(msg string) (string, error) {
 	if argv[0] != "!koala" {
 		return "", nil
 	}
-
 	if len(argv) != 3 {
 		return "usage: !koala <pattern> <response>", nil
+	}
+
+	if argv[1] == "!koala" {
+		return "", nil
 	}
 
 	if err := b.kv.Add("koala", argv[1], argv[2]); err != nil {
