@@ -17,7 +17,7 @@ type DiscordBot struct {
 	botPrefix string
 }
 
-func NewDiscordBot(botPrefix, token string) *DiscordBot {
+func NewDiscordBot(botPrefix, token string) bot.Bot {
 	return &DiscordBot{
 		botPrefix: botPrefix,
 		token:     token,
