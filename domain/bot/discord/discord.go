@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/kh9543/bot/domain/bot"
+	"github.com/kh9543/koala/domain/bot"
 )
 
 type DiscordBot struct {

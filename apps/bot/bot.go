@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/kh9543/bot/domain/bot"
-	"github.com/kh9543/bot/domain/bot/discord"
-	"github.com/kh9543/bot/domain/exchangerate"
+	"github.com/kh9543/koala/domain/bot"
+	"github.com/kh9543/koala/domain/bot/discord"
+	"github.com/kh9543/koala/domain/exchangerate"
 )
 
 func NewDiscordBot(prefix, token string) bot.Bot {

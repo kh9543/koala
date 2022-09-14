@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/kh9543/bot/apps/bot"
-	"github.com/kh9543/bot/apps/http/heartbeat"
+	"github.com/kh9543/koala/apps/bot"
+	"github.com/kh9543/koala/apps/http/heartbeat"
 )
 
 func main() {
