@@ -59,14 +59,18 @@ func (b *DiscordBot) Start() error {
 		if m.Author.ID == b.id {
 			return
 		}
-		for i := range b.handlers {
-			handle(b.handlers[i], s, m)
-		}
-		if m.Content[0:1] != b.botPrefix {
-			return
-		}
-		for i := range b.handlersWithPrefix {
-			handle(b.handlersWithPrefix[i], s, m)
+		if m.Content[0:1] == b.botPrefix {
+			for i := range b.handlersWithPrefix {
+				if handle(b.handlersWithPrefix[i], s, m) {
+					return
+				}
+			}
+		} else {
+			for i := range b.handlers {
+				if handle(b.handlers[i], s, m) {
+					return
+				}
+			}
 		}
 
 	})
@@ -77,12 +81,15 @@ func (b *DiscordBot) Start() error {
 	return nil
 }
 
-func handle(h bot.Handler, s *discordgo.Session, m *discordgo.MessageCreate) {
+func handle(h bot.Handler, s *discordgo.Session, m *discordgo.MessageCreate) bool {
 	if reply, err := h(m.Content); err != nil {
 		err = fmt.Errorf("err: %s, handling %s in channel %s", err.Error(), m.Content, m.ChannelID)
 		s.ChannelMessageSend(m.ChannelID, err.Error())
+		return true
 	} else if reply != "" {
 		fmt.Println(m.ChannelID, reply)
 		s.ChannelMessageSend(m.ChannelID, reply)
+		return true
 	}
+	return false
 }

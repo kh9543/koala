@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/kh9543/koala/apps/bot"
@@ -30,14 +28,6 @@ func main() {
 	if err := bot.NewDiscordBot("!", botToken, kv); err != nil {
 		panic(err)
 	}
-
-	// hard code heroku keepAlive here
-	ticker := time.NewTicker(15 * time.Minute)
-	go func() {
-		for range ticker.C {
-			http.Get("https://koalago.herokuapp.com/api/v1/heartbeat/")
-		}
-	}()
 
 	r := gin.New()
 
