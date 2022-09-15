@@ -90,7 +90,7 @@ func (b *Bot) koalaHandler(msg string) (string, error) {
 	}
 
 	ks := make([]string, 0, len(mp))
-	for k, _ := range mp {
+	for k := range mp {
 		ks = append(ks, k)
 	}
 	sort.Slice(ks, func(i, j int) bool {
