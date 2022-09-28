@@ -26,11 +26,13 @@ func init() {
 }
 
 func main() {
+
 	// kv := memory.NewMemory()
 	kv := mongokv.NewMongoKv("koala")
-	if err := bot.NewDiscordBot("!", botToken, kv); err != nil {
-		panic(err)
-	}
+
+	// setup discord bot with handlers
+	discordBot := bot.NewDiscordBot("!", botToken, kv)
+	discordBot.Start()
 
 	go func() {
 		ticker := time.NewTicker(5 * time.Minute)

@@ -9,15 +9,25 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type MongoRepo interface {
+type Mongo interface {
+	Insert(ctx context.Context, db, table string, document interface{}) error
+	Upsert(ctx context.Context, db, table string, filter interface{}, update interface{}) error
 	FindOne(ctx context.Context, db, table string, filter interface{}, result interface{}) error
+	FindAll(ctx context.Context, db, table string, filter interface{}, result interface{}) error
 }
 
-type Mongo struct {
+type MongoRepo struct {
 	client *mongo.Client
 }
 
-func (m *Mongo) Upsert(ctx context.Context, db, table string, filter interface{}, update interface{}) error {
+func (m *MongoRepo) Insert(ctx context.Context, db, table string, document interface{}) error {
+	if _, err := m.client.Database(db).Collection(table).InsertOne(context.TODO(), document); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *MongoRepo) Upsert(ctx context.Context, db, table string, filter interface{}, update interface{}) error {
 	opts := options.Update().SetUpsert(true)
 	if _, err := m.client.Database(db).Collection(table).UpdateOne(context.TODO(), filter, update, opts); err != nil {
 		return err
@@ -25,14 +35,14 @@ func (m *Mongo) Upsert(ctx context.Context, db, table string, filter interface{}
 	return nil
 }
 
-func (m *Mongo) FindOne(ctx context.Context, db, table string, filter interface{}, result interface{}) error {
+func (m *MongoRepo) FindOne(ctx context.Context, db, table string, filter interface{}, result interface{}) error {
 	if err := m.client.Database(db).Collection(table).FindOne(ctx, filter).Decode(result); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *Mongo) FindAll(ctx context.Context, db, table string, filter interface{}, result interface{}) error {
+func (m *MongoRepo) FindAll(ctx context.Context, db, table string, filter interface{}, result interface{}) error {
 	cursor, err := m.client.Database(db).Collection(table).Find(ctx, filter)
 	if err != nil {
 		return err
@@ -55,7 +65,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	MongoDB = Mongo{
+	MongoDB = &MongoRepo{
 		client: client,
 	}
 }

@@ -25,7 +25,7 @@ func NewDiscordBot(botPrefix, token string) bot.Bot {
 	}
 }
 
-func (b *DiscordBot) AddHandler(usePrefix bool, fs ...bot.Handler) {
+func (b *DiscordBot) AddHandlerFuncs(usePrefix bool, fs ...bot.Handler) {
 	if usePrefix {
 		for i := range fs {
 			b.handlersWithPrefix = append(b.handlersWithPrefix, fs[i])
@@ -76,6 +76,13 @@ func (b *DiscordBot) Start() error {
 	})
 
 	if err := session.Open(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (b *DiscordBot) Send(channelID, message string) error {
+	if _, err := b.session.ChannelMessageSend(channelID, message); err != nil {
 		return err
 	}
 	return nil

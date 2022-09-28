@@ -12,32 +12,28 @@ import (
 )
 
 type Bot struct {
-	core bot.Bot
-	kv   kv.Kv
+	bot bot.Bot
+	kv  kv.Kv
 }
 
-func NewDiscordBot(prefix, token string, kv kv.Kv) error {
-	bot := Bot{
-		core: discord.NewDiscordBot(prefix, token),
-		kv:   kv,
+func NewDiscordBot(prefix, token string, kv kv.Kv) bot.Bot {
+	b := &Bot{
+		bot: discord.NewDiscordBot(prefix, token),
+		kv:  kv,
 	}
 
-	bot.core.AddHandler(
+	b.bot.AddHandlerFuncs(
 		true,
-		bot.pingHandler,
-		bot.currencyHandler,
-		bot.koalaBrainHandler,
+		b.pingHandler,
+		b.currencyHandler,
+		b.koalaBrainHandler,
 	)
 
-	bot.core.AddHandler(
+	b.bot.AddHandlerFuncs(
 		false,
-		bot.koalaHandler,
+		b.koalaHandler,
 	)
-
-	if err := bot.core.Start(); err != nil {
-		return err
-	}
-	return nil
+	return b.bot
 }
 
 func (b *Bot) pingHandler(msg string) (string, error) {
