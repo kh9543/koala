@@ -93,11 +93,16 @@ func (b *Bot) koalaHandler(msg string) (string, error) {
 		return len(ks[i]) > len(ks[j])
 	})
 
+	response := []string{}
 	for _, k := range ks {
 		if strings.Contains(msg, k) {
-			return mp[k].(string), nil
+			response = append(response, mp[k].(string))
 		}
 	}
 
-	return "", nil
+	if len(response) == 0 {
+		return "", nil
+	}
+
+	return strings.Join(response, " "), nil
 }
