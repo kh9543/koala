@@ -90,10 +90,14 @@ func (b *Bot) koalaHandler(msg string) (string, error) {
 		ks = append(ks, k)
 	}
 
-	response := stringmatch.MatchString(msg, ks)
-
-	if len(response) == 0 {
+	matchedKeys := stringmatch.MatchString(msg, ks)
+	if len(matchedKeys) == 0 {
 		return "", nil
+	}
+
+	response := make([]string, 0, len(matchedKeys))
+	for _, key := range matchedKeys {
+		response = append(response, mp[key].(string))
 	}
 
 	return strings.Join(response, " "), nil
