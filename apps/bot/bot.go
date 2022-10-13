@@ -2,13 +2,13 @@ package bot
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 
 	"github.com/kh9543/koala/domain/bot"
 	"github.com/kh9543/koala/domain/bot/discord"
 	"github.com/kh9543/koala/domain/exchangerate"
 	"github.com/kh9543/koala/domain/kv"
+	"github.com/kh9543/koala/domain/stringmatch"
 )
 
 type Bot struct {
@@ -89,16 +89,8 @@ func (b *Bot) koalaHandler(msg string) (string, error) {
 	for k := range mp {
 		ks = append(ks, k)
 	}
-	sort.Slice(ks, func(i, j int) bool {
-		return len(ks[i]) > len(ks[j])
-	})
 
-	response := []string{}
-	for _, k := range ks {
-		if strings.Contains(msg, k) {
-			response = append(response, mp[k].(string))
-		}
-	}
+	response := stringmatch.MatchString(msg, ks)
 
 	if len(response) == 0 {
 		return "", nil
