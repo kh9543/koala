@@ -6,6 +6,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/kh9543/koala/domain/bot"
+	"golang.org/x/time/rate"
 )
 
 type DiscordBot struct {
@@ -51,6 +52,8 @@ func (b *DiscordBot) Start() error {
 	if err != nil {
 		return err
 	}
+	
+	limiter := rate.NewLimiter(0.2, 1)
 
 	b.id = user.ID
 	b.session = session
@@ -66,6 +69,9 @@ func (b *DiscordBot) Start() error {
 				}
 			}
 		} else {
+			if isAllowed := limiter.Allow(); !isAllowed {
+				return
+			}
 			for i := range b.handlers {
 				if handle(b.handlers[i], s, m) {
 					return
