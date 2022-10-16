@@ -55,5 +55,8 @@ func (m *MongoKvType) GetAll(col string) (map[string]interface{}, error) {
 }
 
 func (m *MongoKvType) Delete(col, key string) error {
-	return errors.New("not implemented")
+	if err := mongo.MongoDB.DeleteOne(context.Background(), m.db, col, bson.M{"key": key}); err != nil {
+		return err
+	}
+	return nil
 }

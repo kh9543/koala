@@ -52,7 +52,7 @@ func (b *DiscordBot) Start() error {
 	if err != nil {
 		return err
 	}
-	
+
 	limiter := rate.NewLimiter(0.2, 1)
 
 	b.id = user.ID

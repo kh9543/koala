@@ -27,6 +27,7 @@ func NewDiscordBot(prefix, token string, kv kv.Kv) bot.Bot {
 		b.pingHandler,
 		b.currencyHandler,
 		b.koalaBrainHandler,
+		b.koalaDeleteHandler,
 	)
 
 	b.bot.AddHandlerFuncs(
@@ -74,6 +75,21 @@ func (b *Bot) koalaBrainHandler(msg string) (string, error) {
 	}
 
 	if err := b.kv.Add("koala", argv[1], argv[2]); err != nil {
+		return "", err
+	}
+	return "👍", nil
+}
+
+func (b *Bot) koalaDeleteHandler(msg string) (string, error) {
+	argv := strings.Split(msg, " ")
+	if argv[0] != "!delete" {
+		return "", nil
+	}
+	if len(argv) != 2 {
+		return "usage: !delete <key>", nil
+	}
+
+	if err := b.kv.Delete("koala", argv[1]); err != nil {
 		return "", err
 	}
 	return "👍", nil
