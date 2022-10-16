@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -32,7 +33,9 @@ func main() {
 
 	// setup discord bot with handlers
 	discordBot := bot.NewDiscordBot("!", botToken, kv)
-	discordBot.Start()
+	if err := discordBot.Start(); err != nil {
+		log.Panic("error :", err)
+	}
 
 	go func() {
 		ticker := time.NewTicker(5 * time.Minute)

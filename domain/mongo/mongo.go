@@ -14,6 +14,7 @@ type Mongo interface {
 	Upsert(ctx context.Context, db, table string, filter interface{}, update interface{}) error
 	FindOne(ctx context.Context, db, table string, filter interface{}, result interface{}) error
 	FindAll(ctx context.Context, db, table string, filter interface{}, result interface{}) error
+	DeleteOne(ctx context.Context, db, table string, filter interface{}) error
 }
 
 type MongoRepo struct {
@@ -52,6 +53,15 @@ func (m *MongoRepo) FindAll(ctx context.Context, db, table string, filter interf
 		return err
 	}
 	return nil
+}
+
+func (m *MongoRepo) DeleteOne(ctx context.Context, db, table string, filter interface{}) error {
+	opts := options.Delete()
+	if _, err := m.client.Database(db).Collection(table).DeleteOne(context.TODO(), filter, opts); err != nil {
+		return err
+	}
+	return nil
+
 }
 
 var MongoDB Mongo
