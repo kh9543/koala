@@ -34,6 +34,11 @@ func NewDiscordBot(prefix, token string, kv kv.Kv) bot.Bot {
 		false,
 		b.koalaHandler,
 	)
+
+	b.bot.AddReactionHandlerFuncs(
+		b.pollHandler,
+	)
+
 	return b.bot
 }
 
@@ -93,6 +98,24 @@ func (b *Bot) koalaDeleteHandler(msg string) (string, error) {
 		return "", err
 	}
 	return "👍", nil
+}
+
+func (b *Bot) pollHandler(msg string) (string, int, error) {
+	argv := strings.Split(msg, " ")
+	if argv[0] != "!poll" {
+		return "", -1, nil
+	}
+	if len(argv) < 2 {
+		return "usage: !poll <title> [<choice>...]", -1, nil
+	} else if len(argv) > 2 {
+		response := fmt.Sprintf("📊 %s\n", argv[1])
+		for i, option := range argv[2:] {
+			response += fmt.Sprintf("%s %s\n", string(rune(i+0x1F1E6)), option)
+		}
+		return response, len(argv) - 2, nil
+	}
+
+	return fmt.Sprintf("📊 %s", argv[1]), 0, nil
 }
 
 func (b *Bot) koalaHandler(msg string) (string, error) {

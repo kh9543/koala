@@ -14,9 +14,10 @@ type DiscordBot struct {
 	id      string
 	session *discordgo.Session
 
-	handlers           []bot.Handler
-	handlersWithPrefix []bot.Handler
-	botPrefix          string
+	handlers             []bot.Handler
+	handlersWithPrefix   []bot.Handler
+	handlersWithReaction []bot.ReactionHandler
+	botPrefix            string
 }
 
 func NewDiscordBot(botPrefix, token string) bot.Bot {
@@ -35,6 +36,12 @@ func (b *DiscordBot) AddHandlerFuncs(usePrefix bool, fs ...bot.Handler) {
 		for i := range fs {
 			b.handlers = append(b.handlers, fs[i])
 		}
+	}
+}
+
+func (b *DiscordBot) AddReactionHandlerFuncs(fs ...bot.ReactionHandler) {
+	for i := range fs {
+		b.handlersWithReaction = append(b.handlersWithReaction, fs[i])
 	}
 }
 
@@ -65,6 +72,11 @@ func (b *DiscordBot) Start() error {
 		if m.Content[0:1] == b.botPrefix {
 			for i := range b.handlersWithPrefix {
 				if handle(b.handlersWithPrefix[i], s, m) {
+					return
+				}
+			}
+			for i := range b.handlersWithReaction {
+				if handlePoll(b.handlersWithReaction[i], s, m) {
 					return
 				}
 			}
@@ -102,6 +114,29 @@ func handle(h bot.Handler, s *discordgo.Session, m *discordgo.MessageCreate) boo
 	} else if reply != "" {
 		fmt.Println(m.ChannelID, reply)
 		s.ChannelMessageSend(m.ChannelID, reply)
+		return true
+	}
+	return false
+}
+
+func handlePoll(h bot.ReactionHandler, s *discordgo.Session, m *discordgo.MessageCreate) bool {
+	if reply, options, err := h(m.Content); err != nil {
+		err = fmt.Errorf("err: %s, handling %s in channel %s", err.Error(), m.Content, m.ChannelID)
+		s.ChannelMessageSend(m.ChannelID, err.Error())
+		return true
+	} else if reply != "" {
+		fmt.Println(m.ChannelID, reply)
+		ms, _ := s.ChannelMessageSend(m.ChannelID, reply)
+
+		if options == 0 {
+			s.MessageReactionAdd(m.ChannelID, ms.ID, "👍")
+			s.MessageReactionAdd(m.ChannelID, ms.ID, "👎")
+		} else if options > 0 {
+			for i := 0; i < options; i++ {
+				s.MessageReactionAdd(m.ChannelID, ms.ID, string(rune(i+0x1F1E6)))
+			}
+		}
+
 		return true
 	}
 	return false
