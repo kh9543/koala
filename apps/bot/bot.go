@@ -3,6 +3,7 @@ package bot
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/kh9543/koala/domain/bot"
 	"github.com/kh9543/koala/domain/bot/discord"
@@ -136,7 +137,10 @@ func (b *Bot) koalaHandler(msg string) (string, error) {
 
 	response := make([]string, 0, len(matchedKeys))
 	for _, key := range matchedKeys {
-		response = append(response, mp[key].(string))
+		result, _ := mp[key].(string)
+		// If there are more and more replaced words, add a new collection in mongodb
+		replaced_result := strings.ReplaceAll(result, "time.Now()", fmt.Sprintf(" %s ", time.Now().Format("2006-01-02 15:04:05")))
+		response = append(response, replaced_result)
 	}
 
 	return strings.Join(response, " "), nil
