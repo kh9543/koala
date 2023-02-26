@@ -7,6 +7,8 @@ import (
 
 	"github.com/kh9543/koala/domain/bot"
 	"github.com/kh9543/koala/domain/bot/discord"
+	"github.com/kh9543/koala/domain/chatgpt"
+	"github.com/kh9543/koala/domain/constant"
 	"github.com/kh9543/koala/domain/exchangerate"
 	"github.com/kh9543/koala/domain/kv"
 	"github.com/kh9543/koala/domain/stringmatch"
@@ -38,6 +40,10 @@ func NewDiscordBot(prefix, token string, kv kv.Kv) bot.Bot {
 
 	b.bot.AddReactionHandlerFuncs(
 		b.pollHandler,
+	)
+
+	b.bot.AddChannelMsgHandlerFuncs(
+		b.chatgptHandler,
 	)
 
 	return b.bot
@@ -144,4 +150,16 @@ func (b *Bot) koalaHandler(msg string) (string, error) {
 	}
 
 	return strings.Join(response, " "), nil
+}
+
+func (b *Bot) chatgptHandler(msg, channelID, userID string) (string, error) {
+	if channelID != string(constant.ChatChannel) {
+		return "", nil
+	}
+
+	ans, err := chatgpt.SendQuestion(msg)
+	if err != nil {
+		return "", err
+	}
+	return ans, nil
 }

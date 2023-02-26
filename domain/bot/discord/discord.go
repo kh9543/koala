@@ -17,7 +17,9 @@ type DiscordBot struct {
 	handlers             []bot.Handler
 	handlersWithPrefix   []bot.Handler
 	handlersWithReaction []bot.ReactionHandler
-	botPrefix            string
+	handlerWithChannelID []bot.ChannelMsgHangler
+
+	botPrefix string
 }
 
 func NewDiscordBot(botPrefix, token string) bot.Bot {
@@ -42,6 +44,12 @@ func (b *DiscordBot) AddHandlerFuncs(usePrefix bool, fs ...bot.Handler) {
 func (b *DiscordBot) AddReactionHandlerFuncs(fs ...bot.ReactionHandler) {
 	for i := range fs {
 		b.handlersWithReaction = append(b.handlersWithReaction, fs[i])
+	}
+}
+
+func (b *DiscordBot) AddChannelMsgHandlerFuncs(fs ...bot.ChannelMsgHangler) {
+	for i := range fs {
+		b.handlerWithChannelID = append(b.handlerWithChannelID, fs[i])
 	}
 }
 
@@ -86,6 +94,11 @@ func (b *DiscordBot) Start() error {
 			}
 			for i := range b.handlers {
 				if handle(b.handlers[i], s, m) {
+					return
+				}
+			}
+			for i := range b.handlerWithChannelID {
+				if handleChannel(b.handlerWithChannelID[i], s, m) {
 					return
 				}
 			}
@@ -137,6 +150,19 @@ func handlePoll(h bot.ReactionHandler, s *discordgo.Session, m *discordgo.Messag
 			}
 		}
 
+		return true
+	}
+	return false
+}
+
+func handleChannel(h bot.ChannelMsgHangler, s *discordgo.Session, m *discordgo.MessageCreate) bool {
+	if reply, err := h(m.Content, m.ChannelID, m.Author.ID); err != nil {
+		err = fmt.Errorf("err: %s, handling %s in channel %s", err.Error(), m.Content, m.ChannelID)
+		s.ChannelMessageSend(m.ChannelID, err.Error())
+		return true
+	} else if reply != "" {
+		fmt.Println(m.ChannelID, reply)
+		s.ChannelMessageSend(m.ChannelID, reply)
 		return true
 	}
 	return false
