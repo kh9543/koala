@@ -159,7 +159,7 @@ func (b *Bot) chatgptHandler(msg, channelID, userID string) (string, error) {
 
 	ans, err := chatgpt.SendQuestion(msg)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	return ans, nil
 }
