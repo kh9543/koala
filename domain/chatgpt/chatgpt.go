@@ -9,6 +9,8 @@ import (
 	"os"
 )
 
+var SystemMessage = "你是隻無尾熊，請以無尾熊的角度回答對話、可愛一點。"
+
 var API_KEY string
 
 type sendQuestionBody struct {
@@ -60,7 +62,7 @@ func SendQuestion(msg string) (string, error) {
 		Messages: []Message{
 			{
 				Role:    "system",
-				Content: "你是隻無尾熊，請以無尾熊的角度回答對話、可愛一點。",
+				Content: SystemMessage,
 			},
 			{
 				Role:    "user",
@@ -71,6 +73,18 @@ func SendQuestion(msg string) (string, error) {
 		MaxTokens:   256,
 		TopP:        1,
 	}
+
+	if SystemMessage != "" {
+		body.Messages = append(body.Messages, Message{
+			Role:    "system",
+			Content: SystemMessage,
+		})
+	}
+
+	body.Messages = append(body.Messages, Message{
+		Role:    "user",
+		Content: msg,
+	})
 
 	jsonBytes, err := json.Marshal(body)
 	if err != nil {
