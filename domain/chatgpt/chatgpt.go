@@ -61,7 +61,7 @@ func SendQuestion(msg string) (string, error) {
 		Model:       "gpt-3.5-turbo",
 		Messages:    []Message{},
 		Temperature: 0.7,
-		MaxTokens:   256,
+		MaxTokens:   1024,
 		TopP:        1,
 	}
 
