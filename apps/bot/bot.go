@@ -31,6 +31,7 @@ func NewDiscordBot(prefix, token string, kv kv.Kv) bot.Bot {
 		b.currencyHandler,
 		b.koalaBrainHandler,
 		b.koalaDeleteHandler,
+		b.chatgptControlHandler,
 	)
 
 	b.bot.AddHandlerFuncs(
@@ -162,4 +163,21 @@ func (b *Bot) chatgptHandler(msg, channelID, userID string) (string, error) {
 		return "", err
 	}
 	return ans, nil
+}
+
+func (b *Bot) chatgptControlHandler(msg string) (string, error) {
+	argv := strings.Split(msg, " ")
+	if argv[0] != "!chatgpt" {
+		return "", nil
+	}
+	if len(argv) != 2 {
+		return "usage: !chatgpt <system_msg>", nil
+	}
+
+	if msg == " " {
+		msg = ""
+	}
+
+	chatgpt.SystemMessage = msg
+	return "👍", nil
 }
