@@ -171,10 +171,10 @@ func (b *Bot) chatgptControlHandler(msg string) (string, error) {
 		return "", nil
 	}
 	if len(argv) != 2 {
-		return "usage: !chatgpt <system_msg>", nil
+		return "usage: !chatgpt <system_msg|delete>", nil
 	}
 
-	if msg == " " {
+	if msg == "delete" {
 		msg = ""
 	}
 
