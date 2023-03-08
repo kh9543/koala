@@ -12,24 +12,34 @@ import (
 var API_KEY string
 
 type sendQuestionBody struct {
-	Model       string `json:"model"`
-	Prompt      string `json:"prompt"`
-	Temperature int    `json:"temperature"`
-	MaxTokens   int    `json:"max_tokens"`
+	Messages         []Message `json:"messages"`
+	Temperature      float64   `json:"temperature"`
+	MaxTokens        int       `json:"max_tokens"`
+	TopP             int       `json:"top_p"`
+	FrequencyPenalty int       `json:"frequency_penalty"`
+	PresencePenalty  int       `json:"presence_penalty"`
+	Model            string    `json:"model"`
+	Stream           bool      `json:"stream"`
+}
+
+type Message struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
 }
 
 type sendQuestionResponse struct {
 	ID      string   `json:"id"`
 	Object  string   `json:"object"`
-	Choices []Choice `json:"choices"`
+	Created int      `json:"created"`
+	Model   string   `json:"model"`
 	Usage   Usage    `json:"usage"`
+	Choices []Choice `json:"choices"`
 }
 
 type Choice struct {
-	Text          string `json:"text"`
-	Index         int    `json:"index"`
-	Logprobs      *int   `json:"logprobs"`
-	FininshReason string `json:"finish_reason"`
+	Message       Message `json:"message"`
+	Index         int     `json:"index"`
+	FininshReason string  `json:"finish_reason"`
 }
 
 type Usage struct {
@@ -46,17 +56,27 @@ func SendQuestion(msg string) (string, error) {
 	client := &http.Client{}
 
 	body := sendQuestionBody{
-		Model:       "text-davinci-003",
-		Prompt:      msg,
-		Temperature: 0,
-		MaxTokens:   1024,
+		Model: "gpt-3.5-turbo",
+		Messages: []Message{
+			{
+				Role:    "system",
+				Content: "你是隻無尾熊，請以無尾熊的角度回答對話、可愛一點。",
+			},
+			{
+				Role:    "user",
+				Content: msg,
+			},
+		},
+		Temperature: 0.7,
+		MaxTokens:   256,
+		TopP:        1,
 	}
 
 	jsonBytes, err := json.Marshal(body)
 	if err != nil {
 		return "", err
 	}
-	req, err := http.NewRequest("POST", "https://api.openai.com/v1/completions", bytes.NewReader(jsonBytes))
+	req, err := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewReader(jsonBytes))
 	if err != nil {
 		return "", err
 	}
@@ -80,5 +100,5 @@ func SendQuestion(msg string) (string, error) {
 	if len(response.Choices) == 0 {
 		return "openapi 不知道要怎麼回答你這個問題，請你檢討", nil
 	}
-	return response.Choices[0].Text, nil
+	return response.Choices[0].Message.Content, nil
 }
