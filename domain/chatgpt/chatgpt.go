@@ -58,17 +58,8 @@ func SendQuestion(msg string) (string, error) {
 	client := &http.Client{}
 
 	body := sendQuestionBody{
-		Model: "gpt-3.5-turbo",
-		Messages: []Message{
-			{
-				Role:    "system",
-				Content: SystemMessage,
-			},
-			{
-				Role:    "user",
-				Content: msg,
-			},
-		},
+		Model:       "gpt-3.5-turbo",
+		Messages:    []Message{},
 		Temperature: 0.7,
 		MaxTokens:   256,
 		TopP:        1,
