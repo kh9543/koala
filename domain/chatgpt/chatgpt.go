@@ -28,11 +28,11 @@ type Message struct {
 }
 
 type sendQuestionResponse struct {
-	ID      string `json:"id"`
-	Object  string `json:"object"`
-	Created int    `json:"created"`
-	Model   string `json:"model"`
-	Usage   Usage
+	ID      string   `json:"id"`
+	Object  string   `json:"object"`
+	Created int      `json:"created"`
+	Model   string   `json:"model"`
+	Usage   Usage    `json:"usage"`
 	Choices []Choice `json:"choices"`
 }
 
