@@ -15,8 +15,13 @@ type Bot interface {
 	Send(channelID, message string) error
 }
 
+type MessageWithAuthor struct {
+	Content string
+	Author  string
+}
+
 type Handler func(msg string) (string, error)
 
 type ReactionHandler func(cmsg string) (string, int, error)
 
-type ChannelMsgHangler func(msg, channelID, userID string) (string, error)
+type ChannelMsgHangler func(channelID, userID string, msgs []MessageWithAuthor) (string, error)

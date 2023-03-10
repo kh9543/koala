@@ -8,10 +8,10 @@ import (
 	"github.com/kh9543/koala/domain/bot"
 	"github.com/kh9543/koala/domain/bot/discord"
 	"github.com/kh9543/koala/domain/chatgpt"
-	"github.com/kh9543/koala/domain/constant"
 	"github.com/kh9543/koala/domain/exchangerate"
 	"github.com/kh9543/koala/domain/kv"
 	"github.com/kh9543/koala/domain/stringmatch"
+	discordm "github.com/kh9543/koala/models/discord"
 )
 
 type Bot struct {
@@ -153,12 +153,12 @@ func (b *Bot) koalaHandler(msg string) (string, error) {
 	return strings.Join(response, " "), nil
 }
 
-func (b *Bot) chatgptHandler(msg, channelID, userID string) (string, error) {
-	if channelID != string(constant.ChatChannel) {
+func (b *Bot) chatgptHandler(channelID, userID string, msgs []bot.MessageWithAuthor) (string, error) {
+	if channelID != string(discordm.ChatChannel) {
 		return "", nil
 	}
 
-	ans, err := chatgpt.SendQuestion(msg)
+	ans, err := chatgpt.SendQuestion(msgs)
 	if err != nil {
 		return "", err
 	}

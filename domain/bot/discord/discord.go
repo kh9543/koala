@@ -152,17 +152,39 @@ func handlePoll(h bot.ReactionHandler, s *discordgo.Session, m *discordgo.Messag
 
 		return true
 	}
+
 	return false
 }
 
 func handleChannel(h bot.ChannelMsgHangler, s *discordgo.Session, m *discordgo.MessageCreate) bool {
-	if reply, err := h(m.Content, m.ChannelID, m.Author.ID); err != nil {
+	msgs := []bot.MessageWithAuthor{
+		{
+			Author:  m.Author.ID,
+			Content: m.Content,
+		},
+	}
+	_m := m.ReferencedMessage
+	for {
+		if _m == nil {
+			break
+		}
+		_m, _ = s.ChannelMessage(_m.ChannelID, _m.ID)
+		msgs = append(msgs, bot.MessageWithAuthor{
+			Author:  _m.Author.ID,
+			Content: _m.Content,
+		})
+		_m = _m.ReferencedMessage
+	}
+	for i, j := 0, len(msgs)-1; i < j; i, j = i+1, j-1 {
+		msgs[i], msgs[j] = msgs[j], msgs[i]
+	}
+	if reply, err := h(m.ChannelID, m.Author.ID, msgs); err != nil {
 		err = fmt.Errorf("err: %s, handling %s in channel %s", err.Error(), m.Content, m.ChannelID)
 		s.ChannelMessageSend(m.ChannelID, err.Error())
 		return true
 	} else if reply != "" {
 		fmt.Println(m.ChannelID, reply)
-		s.ChannelMessageSend(m.ChannelID, reply)
+		s.ChannelMessageSendReply(m.ChannelID, reply, m.Reference())
 		return true
 	}
 	return false

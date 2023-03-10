@@ -7,6 +7,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/kh9543/koala/domain/bot"
+	"github.com/kh9543/koala/models/discord"
 )
 
 var SystemMessage = "你是隻無尾熊，請以無尾熊的角度回答對話、可愛一點。"
@@ -54,7 +57,7 @@ func init() {
 	API_KEY = os.Getenv("API_KEY")
 }
 
-func SendQuestion(msg string) (string, error) {
+func SendQuestion(msgs []bot.MessageWithAuthor) (string, error) {
 	client := &http.Client{}
 
 	body := sendQuestionBody{
@@ -72,10 +75,17 @@ func SendQuestion(msg string) (string, error) {
 		})
 	}
 
-	body.Messages = append(body.Messages, Message{
-		Role:    "user",
-		Content: msg,
-	})
+	//TODO check token limit
+	for _, msg := range msgs {
+		role := "user"
+		if msg.Author == string(discord.Koala) {
+			role = "assistant"
+		}
+		body.Messages = append(body.Messages, Message{
+			Role:    role,
+			Content: msg.Content,
+		})
+	}
 
 	jsonBytes, err := json.Marshal(body)
 	if err != nil {
